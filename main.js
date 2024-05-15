@@ -10,7 +10,7 @@ const raycaster = new THREE.Raycaster()
 let mousePointer = new THREE.Vector2()
 let activeObject = null
 
-const geometry = new THREE.BoxGeometry(6, 3, .6)
+const geometry = new THREE.BoxGeometry(6, 3, .5)
 let material = new THREE.MeshBasicMaterial({ color: 0xfffff, wireframe: false })
 let tape = new THREE.Mesh(geometry, material)
 
@@ -38,10 +38,14 @@ const onMouseMove = (event) => {
     const object = intersections[0].object
     object.material.color.set(0xffffff)
     activeObject = object
+    document.body.style.cursor = 'pointer'
   }
-  else if(activeObject) {
-    activeObject.material.color.set(0xfffff)
-    activeObject = null
+  else {
+    document.body.style.cursor = 'default'
+    if(activeObject) {
+      activeObject.material.color.set(0xfffff)
+      activeObject = null
+    }
   }
 }
 
