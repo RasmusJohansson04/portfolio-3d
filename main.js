@@ -1,3 +1,5 @@
+//https://codesandbox.io/p/sandbox/basic-threejs-example-with-re-use-dsrvn?file=%2Fsrc%2Findex.js%3A120%2C20-120%2C27
+
 import * as THREE from 'three'
 
 let fov = 75
@@ -16,7 +18,7 @@ let tape = new THREE.Mesh(geometry, material)
 
 scene.add(tape)
 
-const renderer = new THREE.WebGLRenderer({ antialias: true })
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.render(scene, camera)
 
@@ -34,6 +36,7 @@ const onMouseMove = (event) => {
 
   raycaster.setFromCamera(mousePointer, camera)
   const intersections = raycaster.intersectObjects(scene.children, true)
+
   if(intersections[0]) {
     const object = intersections[0].object
     object.material.color.set(0xffffff)
@@ -48,6 +51,14 @@ const onMouseMove = (event) => {
     }
   }
 }
+
+window.addEventListener('click', (event) => {
+  intersections.forEach((hit) => {
+    if(hit.object.onClick) {
+      alert('HIT')
+    }
+  })
+})
 
 document.body.appendChild(renderer.domElement)
 
