@@ -1,34 +1,45 @@
 //https://codesandbox.io/p/sandbox/basic-threejs-example-with-re-use-dsrvn?file=%2Fsrc%2Findex.js%3A120%2C20-120%2C27
 
 import * as THREE from 'three'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 
 let fov = 75
 let scene = new THREE.Scene()
-const camera = new THREE.PerspectiveCamera(fov, window.innerWidth/window.innerHeight, 1, 10000)
 
-camera.position.z = 15
+const camera = new THREE.PerspectiveCamera(fov, window.innerWidth/window.innerHeight, 1, 10000)
+const loader = new GLTFLoader()
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+renderer.setSize(window.innerWidth, window.innerHeight)
+
+camera.position.z = 10
 
 const raycaster = new THREE.Raycaster()
 let mousePointer = new THREE.Vector2()
 let activeObject = null
 
-const geometry = new THREE.BoxGeometry(6, 3, .5)
-let material = new THREE.MeshBasicMaterial({ color: 0xfffff, wireframe: false })
-let tape = new THREE.Mesh(geometry, material)
+const light = new THREE.AmbientLight(0x404040, 50)
+scene.add( light )
 
-scene.add(tape)
+const modelLoader = (url) => {
+  return new Promise((resolve, reject) => {
+    loader.load(url, data => resolve(data), null, reject)
+  })
+}
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
-renderer.setSize(window.innerWidth, window.innerHeight)
-renderer.render(scene, camera)
-
-const spin = () => {
-  requestAnimationFrame(spin)
-  tape.rotation.y += .003
+const spin = (obj) => {
+  obj.animationID = requestAnimationFrame(function() {
+    spin(obj)
+  })
+  obj.rotation.y += .005
   renderer.render(scene, camera)
 }
 
-spin()
+const cassette_import = await modelLoader('cassette.gltf')
+const cassette = cassette_import.scene
+cassette.scale.set(5, 5, 5)
+
+scene.add(cassette)
+renderer.render(scene, camera)
 
 const onMouseMove = (event) => {
   mousePointer.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -39,14 +50,17 @@ const onMouseMove = (event) => {
 
   if(intersections[0]) {
     const object = intersections[0].object
-    object.material.color.set(0xffffff)
     activeObject = object
     document.body.style.cursor = 'pointer'
+    if(!object.animationID) {
+      spin(object)
+    }
   }
   else {
     document.body.style.cursor = 'default'
     if(activeObject) {
-      activeObject.material.color.set(0xfffff)
+      cancelAnimationFrame(activeObject.animationID)
+      activeObject.animationID = null
       activeObject = null
     }
   }
