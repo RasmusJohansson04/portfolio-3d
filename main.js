@@ -2,6 +2,7 @@
 
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { Tween } from '@tweenjs/tween.js'
 
 let fov = 75
 let scene = new THREE.Scene()
@@ -67,11 +68,9 @@ const onMouseMove = (event) => {
 }
 
 window.addEventListener('click', (event) => {
-  intersections.forEach((hit) => {
-    if(hit.object.onClick) {
-      alert('HIT')
-    }
-  })
+  if(activeObject) {
+    document.getElementById('test').textContent = 'HELLO WORLD'
+  }
 })
 
 document.body.appendChild(renderer.domElement)
